@@ -64,6 +64,14 @@ spec:
               {{- include "temporal.password-env" (list $ $defaultStore) | nindent 14 }}
             - name: TEMPORAL_VISIBILITY_STORE_PASSWORD
               {{- include "temporal.password-env" (list $ $visibilityStore) | nindent 14 }}
+            {{- if or $defaultStore.config.userSecretKey (and $defaultStore.config.existingSecret $defaultStore.config.user) }}
+            - name: TEMPORAL_DEFAULT_STORE_USER
+              {{- include "temporal.user-env" (list $ $defaultStore) | nindent 14 }}
+            {{- end }}
+            {{- if or $visibilityStore.config.userSecretKey (and $visibilityStore.config.existingSecret $visibilityStore.config.user) }}
+            - name: TEMPORAL_VISIBILITY_STORE_USER
+              {{- include "temporal.user-env" (list $ $visibilityStore) | nindent 14 }}
+            {{- end }}
           {{- if and (hasKey $.Values.server "internalFrontend") $.Values.server.internalFrontend.enabled }}
             - name: USE_INTERNAL_FRONTEND
               value: "1"

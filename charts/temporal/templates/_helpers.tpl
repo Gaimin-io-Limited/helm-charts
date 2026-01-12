@@ -155,7 +155,14 @@ app.kubernetes.io/part-of: {{ $global.Chart.Name }}
           {{- $_ := unset $storeConfig "password" -}}
         {{- end -}}
       {{- end -}}
-      {{- $_ := set $dsCopy $storeType (omit $storeConfig "existingSecret" "secretKey" "createDatabase" "manageSchema") -}}
+      {{- if or (hasKey $storeConfig "user") (hasKey $storeConfig "userSecretKey") -}}
+        {{- if eq $name $defaultStore -}}
+          {{- $_ := set $storeConfig "user" "__ENV_TEMPORAL_DEFAULT_STORE_USER__" -}}
+        {{- else if eq $name $visibilityStore -}}
+          {{- $_ := set $storeConfig "user" "__ENV_TEMPORAL_VISIBILITY_STORE_USER__" -}}
+        {{- end -}}
+      {{- end -}}
+      {{- $_ := set $dsCopy $storeType (omit $storeConfig "existingSecret" "secretKey" "userSecretKey" "createDatabase" "manageSchema") -}}
     {{- end -}}
   {{- end -}}
   {{- $_ := set $patchedDatastores $name $dsCopy -}}
